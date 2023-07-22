@@ -1,4 +1,4 @@
-package com.jozu.compose.firebasesample.ui.theme
+package com.jozu.compose.firebasesample.presentation.theme
 
 import android.app.Activity
 import android.os.Build
