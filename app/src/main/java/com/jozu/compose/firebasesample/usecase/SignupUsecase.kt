@@ -12,6 +12,6 @@ class SignupUsecase @Inject constructor(
     private val accountRepository: AccountRepository,
 ) {
     suspend fun signup(email: String, password: String) {
-        accountRepository.signup(email, password)
+        accountRepository.signupMail(email, password)
     }
 }

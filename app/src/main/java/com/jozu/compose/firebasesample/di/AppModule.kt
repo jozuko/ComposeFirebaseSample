@@ -1,5 +1,6 @@
 package com.jozu.compose.firebasesample.di
 
+import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.firebase.auth.FirebaseAuth
 import com.jozu.compose.firebasesample.domain.AccountRepository
 import com.jozu.compose.firebasesample.infra.AccountRepositoryImpl
@@ -17,5 +18,8 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 object AppModule {
     @Provides
-    fun provideAccountRepository(auth: FirebaseAuth): AccountRepository = AccountRepositoryImpl(auth)
+    fun provideAccountRepository(
+        auth: FirebaseAuth,
+        signInRequest: BeginSignInRequest,
+    ): AccountRepository = AccountRepositoryImpl(auth, signInRequest)
 }

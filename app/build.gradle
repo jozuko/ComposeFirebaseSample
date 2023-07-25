@@ -16,6 +16,7 @@ android {
 
     def properties = new Properties()
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    def googleOauthServerClientId = properties.getProperty('google_oauth_server_client_id')
 
     defaultConfig {
         applicationId "com.jozu.compose.firebasesample"
@@ -28,6 +29,8 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        buildConfigField("String", "GOOGLE_OAUTH_SERVER_CLIENT_ID", "${googleOauthServerClientId}")
     }
 
     signingConfigs {
@@ -104,6 +107,9 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.2.0')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
+
+    // for GoogleSignIn
+    implementation 'com.google.android.gms:play-services-auth:20.6.0'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

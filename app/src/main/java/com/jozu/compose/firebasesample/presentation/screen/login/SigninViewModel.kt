@@ -1,5 +1,10 @@
 package com.jozu.compose.firebasesample.presentation.screen.login
 
+import android.app.Activity
+import android.util.Log
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +15,8 @@ import com.jozu.compose.firebasesample.domain.AccountFuture
 import com.jozu.compose.firebasesample.domain.AccountRepository
 import com.jozu.compose.firebasesample.presentation.common.snackbar.SnackbarManager
 import com.jozu.compose.firebasesample.presentation.common.snackbar.SnackbarMessage.Companion.toSnackbarMessage
+import com.jozu.compose.firebasesample.usecase.GoogleSigninCase
+import com.jozu.compose.firebasesample.usecase.SignOutUsecase
 import com.jozu.compose.firebasesample.usecase.SigninUsecase
 import com.jozu.compose.firebasesample.usecase.SignupUsecase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +37,8 @@ import javax.inject.Inject
 class SigninViewModel @Inject constructor(
     private val signinUsecase: SigninUsecase,
     private val signupUsecase: SignupUsecase,
+    private val signOutUsecase: SignOutUsecase,
+    private val googleSigninCase: GoogleSigninCase,
     accountRepository: AccountRepository,
 ) : ViewModel() {
     private val _uiState: MutableState<SigninUiState> = mutableStateOf(SigninUiState.initial)
@@ -99,6 +108,43 @@ class SigninViewModel @Inject constructor(
             },
             block = {
                 signupUsecase.signup(_uiState.value.email, _uiState.value.password)
+            },
+        )
+    }
+
+    fun onSignOutClick(activity: Activity) {
+        viewModelScope.launch(
+            context = CoroutineExceptionHandler { /*coroutineContext*/_, throwable ->
+                SnackbarManager.showMessage(throwable.toSnackbarMessage())
+            },
+            block = {
+                signOutUsecase.signOut(activity)
+            },
+        )
+    }
+
+    fun onClickSignInWithGoogleOneTap(activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+        viewModelScope.launch(
+            context = CoroutineExceptionHandler { _, throwable ->
+                val message = throwable.toSnackbarMessage()
+                Log.e("onSignInWithGoogleClick", "Error!! $message")
+                SnackbarManager.showMessage(throwable.toSnackbarMessage())
+            },
+            block = {
+                googleSigninCase.signinOneTap(activity, launcher)
+            },
+        )
+    }
+
+    fun onResultSignInWithGoogleOneTap(activity: Activity, result: ActivityResult) {
+        viewModelScope.launch(
+            context = CoroutineExceptionHandler { _, throwable ->
+                val message = throwable.toSnackbarMessage()
+                Log.e("onSignInWithGoogleClick", "Error!! $message")
+                SnackbarManager.showMessage(throwable.toSnackbarMessage())
+            },
+            block = {
+                googleSigninCase.onResultSigninOneTap(activity, result)
             },
         )
     }

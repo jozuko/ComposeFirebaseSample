@@ -35,13 +35,21 @@ data class SigninUiState(
 
     fun updateCurrentUser(accountFuture: AccountFuture<Account>): SigninUiState {
         Log.d("SigninUiState", "$accountFuture")
-        if (accountFuture is AccountFuture.Authorized) {
-            return this.copy(
-                status = SigninUiStatus.Authorized,
-                account = accountFuture.account,
-            )
+        return when (accountFuture) {
+            is AccountFuture.Authorized -> {
+                this.copy(
+                    status = SigninUiStatus.Authorized,
+                    account = accountFuture.account,
+                )
+            }
+
+            is AccountFuture.Idle -> {
+                this.copy(
+                    status = SigninUiStatus.Idle,
+                    account = null,
+                )
+            }
         }
-        return this
     }
 
     @StringRes
