@@ -14,7 +14,7 @@ import com.jozu.compose.firebasesample.domain.AccountFuture
 import com.jozu.compose.firebasesample.domain.AccountRepository
 import com.jozu.compose.firebasesample.presentation.common.snackbar.SnackbarManager
 import com.jozu.compose.firebasesample.presentation.common.snackbar.SnackbarMessage.Companion.toSnackbarMessage
-import com.jozu.compose.firebasesample.usecase.GoogleSigninCase
+import com.jozu.compose.firebasesample.usecase.GoogleOneTapSigninCase
 import com.jozu.compose.firebasesample.usecase.SignOutUsecase
 import com.jozu.compose.firebasesample.usecase.SigninUsecase
 import com.jozu.compose.firebasesample.usecase.SignupUsecase
@@ -37,15 +37,14 @@ class SigninViewModel @Inject constructor(
     private val signinUsecase: SigninUsecase,
     private val signupUsecase: SignupUsecase,
     private val signOutUsecase: SignOutUsecase,
-    private val googleSigninCase: GoogleSigninCase,
+    private val googleOneTapSigninCase: GoogleOneTapSigninCase,
     accountRepository: AccountRepository,
 ) : ViewModel() {
     private val _uiState: MutableState<SigninUiState> = mutableStateOf(SigninUiState.initial)
     val uiState: State<SigninUiState> = _uiState
 
     /** ログイン中ユーザを返却するcallbackFlow */
-    val accountState: StateFlow<AccountFuture<Account>> = accountRepository.accountFuture
-        .map {
+    val accountState: StateFlow<AccountFuture<Account>> = accountRepository.accountFuture.map {
             // UiStateを更新
             _uiState.value = _uiState.value.updateCurrentUser(it)
             it
@@ -130,7 +129,7 @@ class SigninViewModel @Inject constructor(
                 SnackbarManager.showMessage(throwable.toSnackbarMessage())
             },
             block = {
-                googleSigninCase.signinOneTap(launcher)
+                googleOneTapSigninCase.signinOneTap(launcher)
             },
         )
     }
@@ -143,7 +142,7 @@ class SigninViewModel @Inject constructor(
                 SnackbarManager.showMessage(throwable.toSnackbarMessage())
             },
             block = {
-                googleSigninCase.onResultSigninOneTap(result)
+                googleOneTapSigninCase.onResultSigninOneTap(result)
             },
         )
     }

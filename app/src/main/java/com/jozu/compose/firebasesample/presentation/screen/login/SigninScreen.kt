@@ -5,6 +5,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -39,7 +40,6 @@ fun SigninScreen(
 ) {
     viewModel.accountState.collectAsState()
     val uiState by viewModel.uiState
-    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = modifier
@@ -55,54 +55,75 @@ fun SigninScreen(
             SigninUiStatus.Error -> Text("Error!!")
         }
 
-        EmailField(value = uiState.email, onNewValue = viewModel::onEmailChange, modifier = Modifier.fieldModifier())
-        PasswordField(value = uiState.password, onNewValue = viewModel::onPasswordChange, modifier = Modifier.fieldModifier())
-        AnimatedVisibility(visible = uiState.isCreateUserMode) {
-            PasswordConfirmField(value = uiState.passwordConfirm, onNewValue = viewModel::onPasswordConfirmChange, modifier = Modifier.fieldModifier())
-        }
+        PasswordSigninButton(uiState, viewModel)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (uiState.isCreateUserMode) {
-            BasicButton(text = R.string.sign_up, modifier = Modifier.basicButton(), action = {
-                focusManager.clearFocus()
-                viewModel.onSignupClick()
-            })
-        } else {
-            BasicButton(text = R.string.sign_in, modifier = Modifier.basicButton(), action = {
-                focusManager.clearFocus()
-                viewModel.onSigninClick()
-            })
-        }
+        ModeChangeButton(uiState, viewModel)
+        SignOutButton(viewModel)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (uiState.isCreateUserMode) {
-            BasicButton(text = R.string.to_sign_in_mode, modifier = Modifier.basicButton(), action = viewModel::onToSigninClick)
-        } else {
-            BasicButton(text = R.string.to_sign_up_mode, modifier = Modifier.basicButton(), action = viewModel::onToSignupClick)
-        }
-
-        BasicButton(
-            text = R.string.sign_out,
-            modifier = Modifier.basicButton(),
-            action = { viewModel.onSignOutClick() },
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val startForResultGoogleSignin = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartIntentSenderForResult(),
-            onResult = { result -> viewModel.onResultSignInWithGoogleOneTap(result) },
-        )
-
-        // テストでキャンセルしすぎた場合は、「*#*#66382723#*#*」に電話をかけましょう。制限がオフになります。
-        // オンに戻すときは同じ番号にもう一度電話をかけましょう
-        // https://developers.google.com/identity/one-tap/android/get-saved-credentials?hl=ja#disable-one-tap
-        BasicButton(
-            text = R.string.sign_in_with_google_one_tap,
-            modifier = Modifier.basicButton(),
-            action = { viewModel.onClickSignInWithGoogleOneTap(startForResultGoogleSignin) },
-        )
+        GoogleOneTapSigninButton(viewModel)
     }
+}
+
+@Composable
+private fun ColumnScope.PasswordSigninButton(uiState: SigninUiState, viewModel: SigninViewModel) {
+    val focusManager = LocalFocusManager.current
+
+    EmailField(value = uiState.email, onNewValue = viewModel::onEmailChange, modifier = Modifier.fieldModifier())
+    PasswordField(value = uiState.password, onNewValue = viewModel::onPasswordChange, modifier = Modifier.fieldModifier())
+    AnimatedVisibility(visible = uiState.isCreateUserMode) {
+        PasswordConfirmField(value = uiState.passwordConfirm, onNewValue = viewModel::onPasswordConfirmChange, modifier = Modifier.fieldModifier())
+    }
+
+    Spacer(modifier = Modifier.height(8.dp))
+
+    if (uiState.isCreateUserMode) {
+        BasicButton(text = R.string.sign_up, modifier = Modifier.basicButton(), action = {
+            focusManager.clearFocus()
+            viewModel.onSignupClick()
+        })
+    } else {
+        BasicButton(text = R.string.sign_in, modifier = Modifier.basicButton(), action = {
+            focusManager.clearFocus()
+            viewModel.onSigninClick()
+        })
+    }
+}
+
+@Composable
+private fun ModeChangeButton(uiState: SigninUiState, viewModel: SigninViewModel) {
+    if (uiState.isCreateUserMode) {
+        BasicButton(text = R.string.to_sign_in_mode, modifier = Modifier.basicButton(), action = viewModel::onToSigninClick)
+    } else {
+        BasicButton(text = R.string.to_sign_up_mode, modifier = Modifier.basicButton(), action = viewModel::onToSignupClick)
+    }
+}
+
+@Composable
+private fun SignOutButton(viewModel: SigninViewModel) {
+    BasicButton(
+        text = R.string.sign_out,
+        modifier = Modifier.basicButton(),
+        action = { viewModel.onSignOutClick() },
+    )
+}
+
+@Composable
+private fun GoogleOneTapSigninButton(viewModel: SigninViewModel) {
+    val startForResultGoogleSignin = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = { result -> viewModel.onResultSignInWithGoogleOneTap(result) },
+    )
+
+    // テストでキャンセルしすぎた場合は、「*#*#66382723#*#*」に電話をかけましょう。制限がオフになります。
+    // オンに戻すときは同じ番号にもう一度電話をかけましょう
+    // https://developers.google.com/identity/one-tap/android/get-saved-credentials?hl=ja#disable-one-tap
+    BasicButton(
+        text = R.string.sign_in_with_google_one_tap,
+        modifier = Modifier.basicButton(),
+        action = { viewModel.onClickSignInWithGoogleOneTap(startForResultGoogleSignin) },
+    )
 }

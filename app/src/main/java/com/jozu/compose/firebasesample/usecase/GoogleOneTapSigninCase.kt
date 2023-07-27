@@ -17,7 +17,7 @@ import javax.inject.Inject
  * Created by jozuko on 2023/07/24.
  * Copyright (c) 2023 Studio Jozu. All rights reserved.
  */
-class GoogleSigninCase @Inject constructor(
+class GoogleOneTapSigninCase @Inject constructor(
     @ApplicationContext private val context: Context,
     private val accountRepository: AccountRepository,
 ) {
