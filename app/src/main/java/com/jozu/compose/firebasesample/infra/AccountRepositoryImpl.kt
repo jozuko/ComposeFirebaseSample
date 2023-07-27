@@ -5,6 +5,9 @@ import android.content.Intent
 import android.util.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -26,6 +29,8 @@ import javax.inject.Inject
 class AccountRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val signInRequest: BeginSignInRequest,
+    private val signInClient: SignInClient,
+    private val googleSignInClient: GoogleSignInClient,
 ) : AccountRepository {
     override val accountFuture: Flow<AccountFuture<Account>>
         get() = callbackFlow {
@@ -73,7 +78,7 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun signOut(signInClient: SignInClient) {
+    override suspend fun signOut() {
         val firebaseUser = auth.currentUser ?: return
         if (firebaseUser.providerData.any { it.providerId == "google.com" }) {
             Log.d("AccountRepository", "signInClient.signOut() call")
@@ -84,7 +89,7 @@ class AccountRepositoryImpl @Inject constructor(
         auth.signOut()
     }
 
-    override suspend fun requestGoogleOneTapAuth(signInClient: SignInClient): PendingIntent {
+    override suspend fun requestGoogleOneTapAuth(): PendingIntent {
         Log.d("AccountRepository", "requestGoogleOneTapAuth start")
         val result = signInClient.beginSignIn(signInRequest).await()
         return result.pendingIntent
@@ -95,7 +100,7 @@ class AccountRepositoryImpl @Inject constructor(
      * AuthStateListener userInfo.providerId=firebase
      * AuthStateListener userInfo.providerId=google.com
      */
-    override suspend fun signinGoogleOneTapAuth(signInClient: SignInClient, resultData: Intent) {
+    override suspend fun signinGoogleOneTapAuth(resultData: Intent) {
         Log.d("AccountRepository", "signinGoogleOneTapAuth start")
 
         val googleCredential = signInClient.getSignInCredentialFromIntent(resultData)
@@ -109,5 +114,24 @@ class AccountRepositoryImpl @Inject constructor(
         }
 
         Log.d("AccountRepository", "signinGoogleOneTapAuth ${authResult.user?.uid}")
+    }
+
+    override fun requestGoogleLegacyAuth(): Intent {
+        return googleSignInClient.signInIntent
+    }
+
+    override suspend fun signinGoogleLegacy(resultData: Intent) {
+        val googleSignInAccount: GoogleSignInAccount = GoogleSignIn.getSignedInAccountFromIntent(resultData).await()
+        Log.d("AccountRepository", "signinGoogle googleSignInAccount.idToken=${googleSignInAccount.idToken}")
+        val firebaseCredential = GoogleAuthProvider.getCredential(googleSignInAccount.idToken, null)
+        val authResult: AuthResult = auth.signInWithCredential(firebaseCredential).await()
+
+        authResult.user?.let { firebaseUser ->
+            firebaseUser.providerData.forEach { userInfo ->
+                Log.d("AccountRepository", "signinGoogle userInfo.providerId=${userInfo.providerId}")
+            }
+        }
+
+        Log.d("AccountRepository", "signinGoogle ${authResult.user?.uid}")
     }
 }

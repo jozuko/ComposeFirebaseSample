@@ -1,15 +1,12 @@
 package com.jozu.compose.firebasesample.usecase
 
 import android.app.Activity
-import android.content.Context
 import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
-import com.google.android.gms.auth.api.identity.Identity
 import com.jozu.compose.firebasesample.domain.AccountRepository
-import com.jozu.compose.firebasesample.usecase.model.SigninOneTapError
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.jozu.compose.firebasesample.usecase.model.SigninGoogleOneTapError
 import javax.inject.Inject
 
 /**
@@ -18,28 +15,25 @@ import javax.inject.Inject
  * Copyright (c) 2023 Studio Jozu. All rights reserved.
  */
 class GoogleOneTapSigninCase @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val accountRepository: AccountRepository,
 ) {
-    suspend fun signinOneTap(launcher: ActivityResultLauncher<IntentSenderRequest>) {
-        val signInClient = Identity.getSignInClient(context)
-        val pendingIntent = accountRepository.requestGoogleOneTapAuth(signInClient)
+    suspend fun signin(launcher: ActivityResultLauncher<IntentSenderRequest>) {
+        val pendingIntent = accountRepository.requestGoogleOneTapAuth()
         val intentSenderRequest = IntentSenderRequest.Builder(pendingIntent).build()
         launcher.launch(intentSenderRequest)
     }
 
-    suspend fun onResultSigninOneTap(result: ActivityResult) {
+    suspend fun onResultSignin(result: ActivityResult) {
         if (result.resultCode != Activity.RESULT_OK) {
-            Log.d("SigninViewModel", "onResultGoogleSignIn ${SigninOneTapError(result.data).resultMessage}")
+            Log.d("GoogleOneTapSigninCase", "onResultSignin ${SigninGoogleOneTapError(result.data).resultMessage}")
             return
         }
 
         val resultData = result.data ?: let {
-            Log.d("SigninViewModel", "onResultGoogleSignIn result.data is null")
+            Log.d("GoogleOneTapSigninCase", "onResultSignin result.data is null")
             return
         }
 
-        val signInClient = Identity.getSignInClient(context)
-        accountRepository.signinGoogleOneTapAuth(signInClient, resultData)
+        accountRepository.signinGoogleOneTapAuth(resultData)
     }
 }

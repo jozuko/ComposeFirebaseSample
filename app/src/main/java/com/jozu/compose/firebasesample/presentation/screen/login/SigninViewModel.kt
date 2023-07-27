@@ -1,5 +1,6 @@
 package com.jozu.compose.firebasesample.presentation.screen.login
 
+import android.content.Intent
 import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -14,6 +15,7 @@ import com.jozu.compose.firebasesample.domain.AccountFuture
 import com.jozu.compose.firebasesample.domain.AccountRepository
 import com.jozu.compose.firebasesample.presentation.common.snackbar.SnackbarManager
 import com.jozu.compose.firebasesample.presentation.common.snackbar.SnackbarMessage.Companion.toSnackbarMessage
+import com.jozu.compose.firebasesample.usecase.GoogleLegacySigninCase
 import com.jozu.compose.firebasesample.usecase.GoogleOneTapSigninCase
 import com.jozu.compose.firebasesample.usecase.SignOutUsecase
 import com.jozu.compose.firebasesample.usecase.SigninUsecase
@@ -38,6 +40,7 @@ class SigninViewModel @Inject constructor(
     private val signupUsecase: SignupUsecase,
     private val signOutUsecase: SignOutUsecase,
     private val googleOneTapSigninCase: GoogleOneTapSigninCase,
+    private val googleLegacySigninCase: GoogleLegacySigninCase,
     accountRepository: AccountRepository,
 ) : ViewModel() {
     private val _uiState: MutableState<SigninUiState> = mutableStateOf(SigninUiState.initial)
@@ -45,14 +48,14 @@ class SigninViewModel @Inject constructor(
 
     /** ログイン中ユーザを返却するcallbackFlow */
     val accountState: StateFlow<AccountFuture<Account>> = accountRepository.accountFuture.map {
-            // UiStateを更新
-            _uiState.value = _uiState.value.updateCurrentUser(it)
-            it
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Lazily,
-            initialValue = AccountFuture.Idle,
-        )
+        // UiStateを更新
+        _uiState.value = _uiState.value.updateCurrentUser(it)
+        it
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Lazily,
+        initialValue = AccountFuture.Idle,
+    )
 
     fun onEmailChange(newValue: String) {
         _uiState.value = _uiState.value.copy(email = newValue)
@@ -129,7 +132,7 @@ class SigninViewModel @Inject constructor(
                 SnackbarManager.showMessage(throwable.toSnackbarMessage())
             },
             block = {
-                googleOneTapSigninCase.signinOneTap(launcher)
+                googleOneTapSigninCase.signin(launcher)
             },
         )
     }
@@ -138,11 +141,34 @@ class SigninViewModel @Inject constructor(
         viewModelScope.launch(
             context = CoroutineExceptionHandler { _, throwable ->
                 val message = throwable.toSnackbarMessage()
-                Log.e("onSignInWithGoogleClick", "Error!! $message")
+                Log.e("onSignInWithGoogleOneTapClick", "Error!! $message")
                 SnackbarManager.showMessage(throwable.toSnackbarMessage())
             },
             block = {
-                googleOneTapSigninCase.onResultSigninOneTap(result)
+                googleOneTapSigninCase.onResultSignin(result)
+            },
+        )
+    }
+
+    fun onClickSignInWithGoogleLegacy(launcher: ActivityResultLauncher<Intent>) {
+        try {
+            googleLegacySigninCase.signin(launcher)
+        } catch (e: Exception) {
+            val message = e.toSnackbarMessage()
+            Log.e("onClickSignInWithGoogleLegacy", "Error!! $message")
+            SnackbarManager.showMessage(e.toSnackbarMessage())
+        }
+    }
+
+    fun onResultSignInWithGoogleLegacy(result: ActivityResult) {
+        viewModelScope.launch(
+            context = CoroutineExceptionHandler { _, throwable ->
+                val message = throwable.toSnackbarMessage()
+                Log.e("onClickSignInWithGoogleLegacy", "Error!! $message")
+                SnackbarManager.showMessage(throwable.toSnackbarMessage())
+            },
+            block = {
+                googleLegacySigninCase.onResultSignin(result)
             },
         )
     }

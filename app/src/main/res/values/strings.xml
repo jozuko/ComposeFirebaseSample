@@ -12,6 +12,7 @@
     <string name="password_invalid">誤った形式のパスワード</string>
     <string name="password_not_equals">パスワード不一致</string>
     <string name="sign_in_with_google_one_tap">Sign in with Google(OneTap)</string>
+    <string name="sign_in_with_google_legacy">Sign in with Google(Legacy)</string>
 
     <string name="generic_error">エラーが発生しました</string>
 </resources>

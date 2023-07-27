@@ -65,6 +65,7 @@ fun SigninScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         GoogleOneTapSigninButton(viewModel)
+        GoogleLegacySigninButton(viewModel)
     }
 }
 
@@ -115,7 +116,7 @@ private fun SignOutButton(viewModel: SigninViewModel) {
 private fun GoogleOneTapSigninButton(viewModel: SigninViewModel) {
     val startForResultGoogleSignin = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult(),
-        onResult = { result -> viewModel.onResultSignInWithGoogleOneTap(result) },
+        onResult = viewModel::onResultSignInWithGoogleOneTap,
     )
 
     // テストでキャンセルしすぎた場合は、「*#*#66382723#*#*」に電話をかけましょう。制限がオフになります。
@@ -126,4 +127,19 @@ private fun GoogleOneTapSigninButton(viewModel: SigninViewModel) {
         modifier = Modifier.basicButton(),
         action = { viewModel.onClickSignInWithGoogleOneTap(startForResultGoogleSignin) },
     )
+}
+
+@Composable
+private fun GoogleLegacySigninButton(viewModel: SigninViewModel) {
+    val startForResult = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = viewModel::onResultSignInWithGoogleLegacy,
+    )
+
+    BasicButton(
+        text = R.string.sign_in_with_google_legacy,
+        modifier = Modifier.basicButton(),
+    ) {
+        viewModel.onClickSignInWithGoogleLegacy(startForResult)
+    }
 }

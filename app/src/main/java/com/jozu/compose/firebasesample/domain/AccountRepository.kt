@@ -2,7 +2,6 @@ package com.jozu.compose.firebasesample.domain
 
 import android.app.PendingIntent
 import android.content.Intent
-import com.google.android.gms.auth.api.identity.SignInClient
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -16,7 +15,9 @@ interface AccountRepository {
     suspend fun createAnonymousAccount()
     suspend fun signinMail(email: String, password: String)
     suspend fun signupMail(email: String, password: String)
-    suspend fun signOut(signInClient: SignInClient)
-    suspend fun requestGoogleOneTapAuth(signInClient: SignInClient): PendingIntent
-    suspend fun signinGoogleOneTapAuth(signInClient: SignInClient, resultData: Intent)
+    suspend fun signOut()
+    suspend fun requestGoogleOneTapAuth(): PendingIntent
+    suspend fun signinGoogleOneTapAuth(resultData: Intent)
+    fun requestGoogleLegacyAuth(): Intent
+    suspend fun signinGoogleLegacy(resultData: Intent)
 }

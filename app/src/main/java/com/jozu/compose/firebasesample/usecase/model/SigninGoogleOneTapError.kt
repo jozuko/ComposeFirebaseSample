@@ -9,7 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
  * Created by jozuko on 2023/07/24.
  * Copyright (c) 2023 Studio Jozu. All rights reserved.
  */
-data class SigninOneTapError(val resultData: Intent?) {
+data class SigninGoogleOneTapError(val resultData: Intent?) {
     val resultMessage: String
         get() {
             resultData ?: return "result.data is null"

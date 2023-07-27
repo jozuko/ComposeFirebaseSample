@@ -1,6 +1,8 @@
 package com.jozu.compose.firebasesample.di
 
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.SignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.firebase.auth.FirebaseAuth
 import com.jozu.compose.firebasesample.domain.AccountRepository
 import com.jozu.compose.firebasesample.infra.AccountRepositoryImpl
@@ -20,6 +22,8 @@ object AppModule {
     @Provides
     fun provideAccountRepository(
         auth: FirebaseAuth,
-        signInRequest: BeginSignInRequest,
-    ): AccountRepository = AccountRepositoryImpl(auth, signInRequest)
+        beginSignInRequest: BeginSignInRequest,
+        signInClient: SignInClient,
+        googleSignInClient: GoogleSignInClient,
+    ): AccountRepository = AccountRepositoryImpl(auth, beginSignInRequest, signInClient, googleSignInClient)
 }
