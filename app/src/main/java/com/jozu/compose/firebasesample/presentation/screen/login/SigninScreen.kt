@@ -1,6 +1,5 @@
 package com.jozu.compose.firebasesample.presentation.screen.login
 
-import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -17,7 +16,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -84,30 +82,27 @@ fun SigninScreen(
         } else {
             BasicButton(text = R.string.to_sign_up_mode, modifier = Modifier.basicButton(), action = viewModel::onToSignupClick)
         }
-        val activity = LocalContext.current as Activity
-
 
         BasicButton(
             text = R.string.sign_out,
             modifier = Modifier.basicButton(),
-            action = { viewModel.onSignOutClick(activity) },
+            action = { viewModel.onSignOutClick() },
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         val startForResultGoogleSignin = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.StartIntentSenderForResult(),
-            onResult = { result -> viewModel.onResultSignInWithGoogleOneTap(activity, result) },
+            onResult = { result -> viewModel.onResultSignInWithGoogleOneTap(result) },
         )
 
         // テストでキャンセルしすぎた場合は、「*#*#66382723#*#*」に電話をかけましょう。制限がオフになります。
         // オンに戻すときは同じ番号にもう一度電話をかけましょう
         // https://developers.google.com/identity/one-tap/android/get-saved-credentials?hl=ja#disable-one-tap
         BasicButton(
-            text = R.string.sign_in_with_google,
+            text = R.string.sign_in_with_google_one_tap,
             modifier = Modifier.basicButton(),
-            action = { viewModel.onClickSignInWithGoogleOneTap(activity, startForResultGoogleSignin) },
+            action = { viewModel.onClickSignInWithGoogleOneTap(startForResultGoogleSignin) },
         )
     }
-
 }

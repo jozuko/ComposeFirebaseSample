@@ -1,8 +1,9 @@
 package com.jozu.compose.firebasesample.usecase
 
-import android.app.Activity
+import android.content.Context
 import com.google.android.gms.auth.api.identity.Identity
 import com.jozu.compose.firebasesample.domain.AccountRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 /**
@@ -12,9 +13,10 @@ import javax.inject.Inject
  */
 class SignOutUsecase @Inject
 constructor(
+    @ApplicationContext private val context: Context,
     private val accountRepository: AccountRepository,
 ) {
-    suspend fun signOut(activity: Activity) {
-        accountRepository.signOut(Identity.getSignInClient(activity))
+    suspend fun signOut() {
+        accountRepository.signOut(Identity.getSignInClient(context))
     }
 }

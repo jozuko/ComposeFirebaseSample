@@ -1,6 +1,5 @@
 package com.jozu.compose.firebasesample.presentation.screen.login
 
-import android.app.Activity
 import android.util.Log
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -112,18 +111,18 @@ class SigninViewModel @Inject constructor(
         )
     }
 
-    fun onSignOutClick(activity: Activity) {
+    fun onSignOutClick() {
         viewModelScope.launch(
             context = CoroutineExceptionHandler { /*coroutineContext*/_, throwable ->
                 SnackbarManager.showMessage(throwable.toSnackbarMessage())
             },
             block = {
-                signOutUsecase.signOut(activity)
+                signOutUsecase.signOut()
             },
         )
     }
 
-    fun onClickSignInWithGoogleOneTap(activity: Activity, launcher: ActivityResultLauncher<IntentSenderRequest>) {
+    fun onClickSignInWithGoogleOneTap(launcher: ActivityResultLauncher<IntentSenderRequest>) {
         viewModelScope.launch(
             context = CoroutineExceptionHandler { _, throwable ->
                 val message = throwable.toSnackbarMessage()
@@ -131,12 +130,12 @@ class SigninViewModel @Inject constructor(
                 SnackbarManager.showMessage(throwable.toSnackbarMessage())
             },
             block = {
-                googleSigninCase.signinOneTap(activity, launcher)
+                googleSigninCase.signinOneTap(launcher)
             },
         )
     }
 
-    fun onResultSignInWithGoogleOneTap(activity: Activity, result: ActivityResult) {
+    fun onResultSignInWithGoogleOneTap(result: ActivityResult) {
         viewModelScope.launch(
             context = CoroutineExceptionHandler { _, throwable ->
                 val message = throwable.toSnackbarMessage()
@@ -144,7 +143,7 @@ class SigninViewModel @Inject constructor(
                 SnackbarManager.showMessage(throwable.toSnackbarMessage())
             },
             block = {
-                googleSigninCase.onResultSigninOneTap(activity, result)
+                googleSigninCase.onResultSigninOneTap(result)
             },
         )
     }
