@@ -20,6 +20,7 @@ data class SigninGoogleLegacyError(val resultData: Intent?) {
                 val googleSigninStatus: Status = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     resultData.getParcelableExtra("googleSignInStatus", Status::class.java)
                 } else {
+                    @Suppress("DEPRECATION")
                     resultData.getParcelableExtra("googleSignInStatus")
                 } ?: return "result.data[googleSignInStatus] is null"
 

@@ -18,6 +18,7 @@ data class SigninUiState(
     val password: String,
     val passwordConfirm: String,
     val isCreateUserMode: Boolean,
+    val mailLinkEmail: String,
     val status: SigninUiStatus,
     val account: Account?,
 ) {
@@ -28,6 +29,7 @@ data class SigninUiState(
                 password = "",
                 passwordConfirm = "",
                 isCreateUserMode = false,
+                mailLinkEmail = "",
                 status = SigninUiStatus.Idle,
                 account = null,
             )
@@ -78,6 +80,15 @@ data class SigninUiState(
         if (password != passwordConfirm) {
             return R.string.password_not_equals
         }
+        return 0
+    }
+
+    @StringRes
+    fun validateMailLink(): Int {
+        if (!mailLinkEmail.isValidEmail()) {
+            return R.string.email_invalid
+        }
+
         return 0
     }
 

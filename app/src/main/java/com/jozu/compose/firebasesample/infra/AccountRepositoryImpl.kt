@@ -1,6 +1,7 @@
 package com.jozu.compose.firebasesample.infra
 
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -12,6 +13,7 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.ktx.actionCodeSettings
 import com.jozu.compose.firebasesample.domain.Account
 import com.jozu.compose.firebasesample.domain.AccountFuture
 import com.jozu.compose.firebasesample.domain.AccountRepository
@@ -19,18 +21,19 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
 /**
  *
  * Created by jozuko on 2023/07/21.
  * Copyright (c) 2023 Studio Jozu. All rights reserved.
  */
-class AccountRepositoryImpl @Inject constructor(
+class AccountRepositoryImpl(
+    private val applicationContext: Context,
     private val auth: FirebaseAuth,
     private val signInRequest: BeginSignInRequest,
     private val signInClient: SignInClient,
     private val googleSignInClient: GoogleSignInClient,
+    private val sharedPref: SharedPref,
 ) : AccountRepository {
     override val accountFuture: Flow<AccountFuture<Account>>
         get() = callbackFlow {
@@ -133,5 +136,32 @@ class AccountRepositoryImpl @Inject constructor(
         }
 
         Log.d("AccountRepository", "signinGoogle ${authResult.user?.uid}")
+    }
+
+    override suspend fun sendMailLinkSignInMail(email: String) {
+        val actionCodeSettings = actionCodeSettings {
+            url = "https://qiita.com/jozuko_dev"
+            handleCodeInApp = true
+            setAndroidPackageName(
+                /* package-name */applicationContext.packageName,
+                /* installIfNotAvailable */true,
+                /* minimumVersion */null,
+            )
+        }
+
+        auth.sendSignInLinkToEmail(email, actionCodeSettings).await()
+
+        sharedPref.mailLinkAddress = email
+    }
+
+    override suspend fun signinMailLink(mailLink: String?) {
+        val email = sharedPref.mailLinkAddress
+        if (mailLink != null) {
+            if (email.isEmpty()) {
+                throw IllegalArgumentException("not saved e-mail address.")
+            }
+            auth.signInWithEmailLink(email, mailLink).await()
+        }
+        sharedPref.mailLinkAddress = ""
     }
 }

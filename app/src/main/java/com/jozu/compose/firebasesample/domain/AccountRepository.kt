@@ -16,8 +16,12 @@ interface AccountRepository {
     suspend fun signinMail(email: String, password: String)
     suspend fun signupMail(email: String, password: String)
     suspend fun signOut()
+
     suspend fun requestGoogleOneTapAuth(): PendingIntent
     suspend fun signinGoogleOneTapAuth(resultData: Intent)
     fun requestGoogleLegacyAuth(): Intent
     suspend fun signinGoogleLegacy(resultData: Intent)
+
+    suspend fun sendMailLinkSignInMail(email: String)
+    suspend fun signinMailLink(mailLink: String?)
 }

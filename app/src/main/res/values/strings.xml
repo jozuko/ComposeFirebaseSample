@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">ComposeFirebaseSample</string>
+    <string name="sign_mode_password_auth">パスワード認証</string>
+    <string name="sign_mode_google_auth">Google認証</string>
+    <string name="sign_mode_mail_link_auth">メールリンク認証</string>
+
     <string name="email">メールアドレス</string>
     <string name="password">パスワード</string>
     <string name="confirm_password">パスワード(確認用)</string>

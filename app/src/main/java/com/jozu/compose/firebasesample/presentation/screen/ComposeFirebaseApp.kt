@@ -29,7 +29,7 @@ import kotlinx.coroutines.CoroutineScope
  * Copyright (c) 2023 Studio Jozu. All rights reserved.
  */
 @Composable
-fun ComposeFirebaseApp() {
+fun ComposeFirebaseApp(mailLink: String? = null) {
     ComposeFirebaseSampleTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -52,7 +52,7 @@ fun ComposeFirebaseApp() {
                 Box(
                     modifier = Modifier.padding(paddingValues),
                 ) {
-                    SigninScreen()
+                    SigninScreen(mailLink = mailLink)
                 }
             }
         }
